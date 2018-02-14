@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -15,11 +16,16 @@ func InitRouter() *mux.Router {
 
 	html := dir + "/manta/public/"
 
+	// Index file
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, html+"html/index.html")
 	})
 	router.HandleFunc("/execute", Chain(ExecuteHandler, Method("POST"), Logging()))
 	router.HandleFunc("/ws", Chain(WebsocketHandler, Logging()))
+
+	subrouter := router.PathPrefix("/model").Subrouter()
+	subrouter.Handle("/", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(CurrentModelsHandler)))
+
 	router.PathPrefix("/static/").Handler(
 		http.StripPrefix("/static/", http.FileServer(http.Dir(html))))
 	return router

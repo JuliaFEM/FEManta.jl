@@ -1,6 +1,6 @@
 package japp
 
-// Pipe ass
+// Pipe class
 type Pipe struct {
 	w chan<- []byte
 }
