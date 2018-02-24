@@ -2,7 +2,7 @@ FROM julia:latest
 
 # Install JuliaFEM package and it's dependencies
 RUN apt-get update && \
-    apt-get -y install hdf5-tools build-essential
+    apt-get -y install hdf5-tools build-essential node
 RUN julia -e 'Pkg.add("JuliaFEM")'
 
 # Get golang image
@@ -16,7 +16,9 @@ COPY ./manta /go/src/github.com/juliafem/manta
 WORKDIR /go/src/github.com/juliafem/
 
 # Build
-RUN go get ./... && go build -o MantaUI && pwd && ls -al
+RUN go get ./... && go build -o MantaUI
+RUN cd /manta/frontend
+RUN npm build
 
 # Run command
 CMD ./MantaUI

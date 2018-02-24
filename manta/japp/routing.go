@@ -14,11 +14,12 @@ func InitRouter() *mux.Router {
 	router := mux.NewRouter()
 	dir, _ := os.Getwd()
 
-	html := dir + "/manta/public/"
+	buildDir := dir + "/manta/frontend/dist/"
+	static := buildDir + "static/"
 
 	// Index file
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, html+"html/index.html")
+		http.ServeFile(w, r, buildDir+"/index.html")
 	})
 	router.HandleFunc("/execute", Chain(ExecuteHandler, Method("POST"), Logging()))
 	router.HandleFunc("/ws", Chain(WebsocketHandler, Logging()))
@@ -27,7 +28,7 @@ func InitRouter() *mux.Router {
 	subrouter.Handle("/", handlers.LoggingHandler(os.Stdout, http.HandlerFunc(CurrentModelsHandler)))
 
 	router.PathPrefix("/static/").Handler(
-		http.StripPrefix("/static/", http.FileServer(http.Dir(html))))
+		http.StripPrefix("/static/", http.FileServer(http.Dir(static))))
 	return router
 }
 
